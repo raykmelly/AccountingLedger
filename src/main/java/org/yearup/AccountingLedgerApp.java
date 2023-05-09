@@ -5,8 +5,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+
+import static java.lang.Integer.parseInt;
 
 public class AccountingLedgerApp {
     Scanner scanner = new Scanner(System.in);
@@ -47,7 +50,7 @@ public class AccountingLedgerApp {
                     default:
                         System.out.println("\nPlease select an option from those above\n");
 
-                        break;
+                        return;
                 }
             } catch (InputMismatchException e) {
                 System.out.println("\nError, please use a string to reply: " + e + "\n");
@@ -85,10 +88,56 @@ public class AccountingLedgerApp {
                     break;
                 case "R":
                     System.out.println("\nSending you to the custom search...\n");
-
+                    displayLedgerScreen();
                     break;
                 case "H":
                     System.out.println("\nSending you back to the home screen...\n");
+                    break;
+                default:
+                    System.out.println("\nPlease select an option from those above\n");
+                    break;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("\nError, please use a string to reply: " + e + "\n");
+        }
+    }
+
+    private void displayLedgerScreen() {
+        System.out.println("Please enter a command");
+        System.out.println("1) Month to date");
+        System.out.println("2) Previous month");
+        System.out.println("3) Year to date");
+        System.out.println("4) Previous year");
+        System.out.println("5) Search by vendor");
+        System.out.println("0) Back");
+        System.out.print("Enter: ");
+
+        try {
+            int reply = scanner.nextInt();
+            switch (reply) {
+                case 1:
+                    System.out.println("\nSearching month to date...\n");
+                    searchMonthToDate();
+                    break;
+                case 2:
+                    System.out.println("\nSearch prev month...\n");
+                    searchPrevMonth();
+                    break;
+                case 3:
+                    System.out.println("\nSearch year to date...\n");
+                    searchYearToDate();
+                    break;
+                case 4:
+                    System.out.println("\nSearch previous year...\n");
+                    searchPrevYear();
+                    break;
+                case 5:
+                    System.out.println("\nSearching by vendor...\n");
+                    searchByVendor();
+                    break;
+                case 0:
+                    System.out.println("\nSending you back to the ledger screen...\n");
+                    displayLedgerScreen();
                     break;
                 default:
                     System.out.println("\nPlease select an option from those above\n");
@@ -100,35 +149,169 @@ public class AccountingLedgerApp {
         }
     }
 
-    private void displayLedgerScreen() {
+    private void searchByVendor() {
+        scanner.nextLine();
+        System.out.print("Enter a vendor name: ");
+        String reply = scanner.nextLine().strip();
 
+        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))) {
+            String line;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] split = line.split("\\|");
+                String vendor = split[3];
+
+                if (vendor.equalsIgnoreCase(reply)) {
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
+
+        }
+        System.out.println();
+    }
+
+    private void searchPrevYear() {
+        System.out.print("Enter a vendor name: ");
+        int reply = scanner.nextInt();
+
+        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))) {
+            String line;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] split = line.split("\\|");
+                String date = split[0];
+                String[] splitDate = date.split("-");
+                int num = Integer.parseInt(splitDate[0]);
+                if (num == (reply - 1)) {
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
+
+        }
+        System.out.println();
+    }
+
+    private void searchYearToDate() {
+        System.out.print("Enter a vendor name: ");
+        int reply = scanner.nextInt();
+
+        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))) {
+            String line;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] split = line.split("\\|");
+                String date = split[0];
+                String[] splitDate = date.split("-");
+                int num = Integer.parseInt(splitDate[0]);
+                if (num == reply) {
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
+
+        }
+        System.out.println();
+    }
+
+    private void searchPrevMonth() {
+        System.out.print("Enter a vendor name: ");
+        int reply = scanner.nextInt();
+
+        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))) {
+            String line;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] split = line.split("\\|");
+                String date = split[0];
+                String[] splitDate = date.split("-");
+                int num = Integer.parseInt(splitDate[1]);
+                if (num == (reply - 1)) {
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
+
+        }
+        System.out.println();
+    }
+
+    private void searchMonthToDate() {
+        System.out.print("Enter a vendor name: ");
+        int reply = scanner.nextInt();
+
+        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))) {
+            String line;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] split = line.split("\\|");
+                String date = split[0];
+                String[] splitDate = date.split("-");
+                int num = Integer.parseInt(splitDate[0]);
+                if (num == reply) {
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
+
+        }
+        System.out.println();
     }
 
     private void displayPayments() {
+        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))) {
+            String line;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] split = line.split("\\|");
+                double num = Double.parseDouble(split[4]);
+                if (-Math.abs(num) == num) {
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
 
+        }
+        System.out.println();
     }
 
     private void displayDeposits() {
+        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))) {
+            String line;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] split = line.split("\\|");
+                double num = Double.parseDouble(split[4]);
+                if (Math.abs(num) == num) {
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
 
+        }
+        System.out.println();
     }
 
     private void displayAllEntries() {
+        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))) {
+            br.readLine();
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
 
+        }
+        System.out.println();
     }
 
     private void addPayment() {
         System.out.println("Please enter the following information");
-        System.out.print("Date (yyy-mm-dd): ");
-        String dateString = scanner.nextLine();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
-        LocalDate date = LocalDate.parse(dateString, dateFormatter);
+        LocalDate date = returnDate();
 
-        System.out.print("Time (hh:mm:ss): ");
-        String timeString = scanner.nextLine();
-
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
-        LocalTime time = LocalTime.parse(timeString, timeFormatter);
+        LocalTime time = returnTime();
 
         System.out.print("Description: ");
         String desc = scanner.nextLine();
@@ -147,25 +330,51 @@ public class AccountingLedgerApp {
             bw.newLine();
             bw.write(fullString);
             System.out.println();
-
         } catch (IOException e) {
             System.out.println("\nError writing file: " + e + "\n");
         }
+
+        scanner.nextLine();
+    }
+
+    private LocalDate returnDate(){
+        System.out.print("Date (yyyy-mm-dd): ");
+        String dateString = scanner.nextLine();
+        LocalDate date = null;
+
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+            date = LocalDate.parse(dateString, dateFormatter);
+        } catch (DateTimeParseException e) {
+            System.out.println("Try again, incorrect input");
+            return returnDate();
+        }
+
+        return date;
+    }
+
+    private LocalTime returnTime(){
+        System.out.print("Time (hh:mm:ss): ");
+        String timeString = scanner.nextLine();
+        LocalTime time;
+
+        try {
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
+            time = LocalTime.parse(timeString, timeFormatter);
+        } catch (DateTimeParseException e) {
+            System.out.println("Try again, incorrect input");
+            return returnTime();
+        }
+
+        return time;
     }
 
     private void addDeposit() {
         System.out.println("Please enter the following information");
-        System.out.print("Date (yyy-mm-dd): ");
-        String dateString = scanner.nextLine();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
-        LocalDate date = LocalDate.parse(dateString, dateFormatter);
+        LocalDate date = returnDate();
 
-        System.out.print("Time (hh:mm:ss): ");
-        String timeString = scanner.nextLine();
-
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
-        LocalTime time = LocalTime.parse(timeString, timeFormatter);
+        LocalTime time = returnTime();
 
         System.out.print("Description: ");
         String desc = scanner.nextLine();
@@ -184,10 +393,10 @@ public class AccountingLedgerApp {
             bw.newLine();
             bw.write(fullString);
             System.out.println();
-
         } catch (IOException e) {
             System.out.println("\nError writing file: " + e + "\n");
         }
 
+        scanner.nextLine();
     }
 }
